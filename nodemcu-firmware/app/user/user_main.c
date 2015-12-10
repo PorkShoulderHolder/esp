@@ -14,7 +14,6 @@
 #include "c_stdlib.h"
 #include "c_stdio.h"
 
-#include "driver/hw_timer.c"
 #include "flash_fs.h"
 #include "user_interface.h"
 #include "user_exceptions.h"
