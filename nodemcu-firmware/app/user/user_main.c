@@ -200,36 +200,29 @@ void nodemcu_init(void)
     system_os_post(LUA_TASK_PRIO,SIG_LUA,'s');
 }
 
-#define user_procTaskPrio        0
-#define user_procTaskQueueLen    1
-os_event_t    user_procTaskQueue[user_procTaskQueueLen];
-static void loop(os_event_t *events);
-
-//Main code function
-static void ICACHE_FLASH_ATTR
-loop(os_event_t *events)
+/******************************************************************************
+ * FunctionName : user_init
+ * Description  : entry of user application, init user function here
+ * Parameters   : none
+ * Returns      : none
+*******************************************************************************/
+void user_init(void)
 {
-    static int j = 0;
-    static int i = 0;
-    for(i = 0; i < 30; i++)
-      os_printf("%d.....", j++);
-    system_os_post(user_procTaskPrio, 0, 0 );
-}
-
-//Init function
-void ICACHE_FLASH_ATTR
-user_init()
-{
-
-    struct station_config stationConf;
+#ifdef LUA_USE_MODULES_RTCTIME
+    rtctime_late_startup ();
+#endif
+    // NODE_DBG("SDK version:%s\n", system_get_sdk_version());
+    // system_print_meminfo();
+    // os_printf("Heap size::%d.\n",system_get_free_heap_size());
+    // os_delay_us(50*1000);   // delay 50ms before init uart
 
     UartBautRate br = BIT_RATE_DEFAULT;
 
-    uart_init (br, br, USER_TASK_PRIO_0, 0);
+    uart_init (br, br, USER_TASK_PRIO_0, SIG_UARTINPUT);
 
-    //Start os task
-    system_os_task(loop, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
+    #ifndef NODE_DEBUG
+    system_set_os_print(0);
+    #endif
 
-    system_os_post(user_procTaskPrio, 0, 0 );
+    system_init_done_cb(nodemcu_init);
 }
-
