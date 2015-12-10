@@ -99,7 +99,6 @@ static void preinit_state (lua_State *L, global_State *g) {
   setnilvalue(gt(L));
 }
 
-
 static void close_state (lua_State *L) {
   global_State *g = G(L);
   luaF_close(L, L->stack);  /* close all upvalues for this thread */

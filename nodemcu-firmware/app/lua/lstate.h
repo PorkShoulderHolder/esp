@@ -33,8 +33,6 @@ struct lua_longjmp;  /* defined in ldo.c */
 
 #define BASIC_STACK_SIZE        (2*LUA_MINSTACK)
 
-
-
 typedef struct stringtable {
   GCObject **hash;
   lu_int32 nuse;  /* number of elements */

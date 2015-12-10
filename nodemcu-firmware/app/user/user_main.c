@@ -14,6 +14,7 @@
 #include "c_stdlib.h"
 #include "c_stdio.h"
 
+#include "driver/hw_timer.c"
 #include "flash_fs.h"
 #include "user_interface.h"
 #include "user_exceptions.h"
@@ -30,6 +31,8 @@
 #define SIG_LUA 0
 #define SIG_UARTINPUT 1
 #define TASK_QUEUE_LEN 4
+#define FRC1_SOURCE 0,
+#define NMI_SOURCE 1,
 
 static os_event_t *taskQueue;
 
@@ -106,10 +109,13 @@ void task_lua(os_event_t *e){
             lua_main( 2, lua_argv );
             break;
         case SIG_UARTINPUT:
+            c_printf("  d  \n");
+
             lua_handle_input (false);
             break;
         case LUA_PROCESS_LINE_SIG:
             lua_handle_input (true);
+
             break;
         default:
             break;
@@ -121,10 +127,9 @@ void task_init(void){
     system_os_task(task_lua, USER_TASK_PRIO_0, taskQueue, TASK_QUEUE_LEN);
 }
 
-// extern void test_spiffs();
-// extern int test_romfs();
-
-// extern uint16_t flash_get_sec_num();
+void kernel_watcher(void){
+    c_printf("watching \n");
+}
 
 void nodemcu_init(void)
 {
@@ -155,7 +160,7 @@ void nodemcu_init(void)
         }
         fs_unmount();   // mounted by format.
     }
-#endif // defined(FLASH_SAFE_API)
+#endif
 
     if (no_init_data)
     {
@@ -171,18 +176,8 @@ void nodemcu_init(void)
 #if defined( BUILD_WOFS )
     romfs_init();
 
-    // if( !wofs_format() )
-    // {
-    //     NODE_ERR( "\ni*** ERROR ***: unable to erase the flash. WOFS might be compromised.\n" );
-    //     NODE_ERR( "It is advised to re-flash the NodeWifi image.\n" );
-    // }
-    // else
-    //     NODE_ERR( "format done.\n" );
-
-    // test_romfs();
 #elif defined ( BUILD_SPIFFS )
     fs_mount();
-    // test_spiffs();
 #endif
     // endpoint_setup();
 
@@ -197,6 +192,11 @@ void nodemcu_init(void)
     tcp_random_port_init ();
 
     task_init();
+    hw_timer_init(0,1);
+    hw_timer_set_func(kernel_watcher);
+    hw_timer_arm(1000);
+
+
     system_os_post(LUA_TASK_PRIO,SIG_LUA,'s');
 }
 
@@ -211,14 +211,9 @@ void user_init(void)
 #ifdef LUA_USE_MODULES_RTCTIME
     rtctime_late_startup ();
 #endif
-    // NODE_DBG("SDK version:%s\n", system_get_sdk_version());
-    // system_print_meminfo();
-    // os_printf("Heap size::%d.\n",system_get_free_heap_size());
-    // os_delay_us(50*1000);   // delay 50ms before init uart
-
     UartBautRate br = BIT_RATE_DEFAULT;
 
-    uart_init (br, br, USER_TASK_PRIO_0, SIG_UARTINPUT);
+    uart_init (br, br, 2, SIG_UARTINPUT);
 
     #ifndef NODE_DEBUG
     system_set_os_print(0);
