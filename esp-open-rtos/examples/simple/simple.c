@@ -12,7 +12,7 @@ void task1(void *pvParameters)
     printf("Hello from task1!\r\n");
     uint32_t count = 0;
     while(1) {
-        vTaskDelay(0);
+        vTaskDelay(100);
         xQueueSend(*queue, &count, 0);
         count++;
     }
@@ -36,7 +36,7 @@ static xQueueHandle mainqueue;
 
 void user_init(void)
 {
-    uart_set_baud(0, 9600);
+    uart_set_baud(0, 115200);
     printf("SDK version:%s\n", sdk_system_get_sdk_version());
     mainqueue = xQueueCreate(10, sizeof(uint32_t));
     xTaskCreate(task1, (signed char *)"tsk1", 256, &mainqueue, 2, NULL);
