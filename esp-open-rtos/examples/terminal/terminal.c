@@ -112,6 +112,6 @@ static void gpiomon()
 
 void user_init(void)
 {
-    uart_set_baud(0, 9600);
+    uart_set_baud(0, 115200);
     gpiomon();
 }
