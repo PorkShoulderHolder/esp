@@ -35,7 +35,7 @@ FLASH_SIZE ?= 16
 FLASH_MODE ?= qio
 
 # Flash speed in MHz, valid values are same as for esptool.py - 80, 40, 26, 20
-FLASH_SPEED ?= 40
+FLASH_SPEED ?= 80
 
 # Output directories to store intermediate compiled files
 # relative to the program directory
@@ -191,8 +191,7 @@ IMGTOOL_ARGS=-$(IMGTOOL_FLASH_SIZE) -$(FLASH_MODE) -$(FLASH_SPEED)
 # Placing $(PROGRAM_DIR) and $(PROGRAM_DIR)include first allows
 # programs to have their own copies of header config files for components
 # , which is useful for overriding things.
-INC_DIRS      = $(PROGRAM_DIR) $(PROGRAM_DIR)include $(ROOT)include
-
+INC_DIRS      = $(PROGRAM_DIR) $(PROGRAM_DIR)include $(ROOT)include $(ROOT)include/espressif $(ROOT)FreeRTOS/Source/include
 ifeq ($(OWN_LIBC),1)
     INC_DIRS += $(ROOT)libc/xtensa-lx106-elf/include
     LDFLAGS += -L$(ROOT)libc/xtensa-lx106-elf/lib

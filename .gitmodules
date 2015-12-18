@@ -1,0 +1,3 @@
+[submodule "esp-open-rtos/lwip/esp-lwip"]
+	path = esp-open-rtos/lwip/esp-lwip
+	url = https://github.com/SuperHouse/esp-lwip

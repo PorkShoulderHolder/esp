@@ -122,6 +122,7 @@ static uint8_t romfs_next_file( uint32_t *start, char* fname, size_t len, size_t
 // or FS_FILE_OK
 static uint8_t romfs_open_file( const char* fname, FD* pfd, FSDATA *pfs, uint32_t *plast, uint32_t *pnameaddr )
 {
+  c_printf("romfs!!\n");
   uint32_t i, j, n;
   char fsname[ MAX_FNAME_LENGTH + 1 ];
   uint32_t fsize;

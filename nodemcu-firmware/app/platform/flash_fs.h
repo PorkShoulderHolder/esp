@@ -36,7 +36,6 @@
 #define FS_NAME_MAX_LENGTH MAX_FNAME_LENGTH
 
 #elif defined( BUILD_SPIFFS )
-
 #include "spiffs.h"
 
 #define FS_OPEN_OK	1
