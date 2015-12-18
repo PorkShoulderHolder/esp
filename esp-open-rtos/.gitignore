@@ -10,3 +10,5 @@ firmware
 local.mk
 local.h
 screenlog.*
+.idea
+CMake*
