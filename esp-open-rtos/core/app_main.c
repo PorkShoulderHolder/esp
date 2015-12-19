@@ -25,6 +25,8 @@
 
 #include "espressif/esp_common.h"
 #include "sdk_internal.h"
+#include "kern/telnet/telnet.c"
+
 
 /* This is not declared in any header file (but arguably should be) */
 
@@ -386,6 +388,7 @@ void sdk_user_init_task(void *params) {
     pp_ver = RTCMEM_SYSTEM[RTCMEM_SYSTEM_PP_VER];
     printf("pp ver: %d.%d\n\n", (pp_ver >> 8) & 0xff, pp_ver & 0xff);
     user_init();
+    telnet_init();
     sdk_user_init_flag = 1;
     sdk_wifi_mode_set(sdk_g_ic.s.wifi_mode);
     if (sdk_g_ic.s.wifi_mode == 1) {

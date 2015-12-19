@@ -387,7 +387,7 @@ xQueueHandle xReturn = NULL;
 			traceCREATE_MUTEX( pxNewQueue );
 
 			/* Start with the semaphore in the expected state. */
-			( void ) xQueueGenericSend( pxNewQueue, NULL, ( portTickType ) 0U, queue, SEND_TO_BACK );
+			( void ) xQueueGenericSend( pxNewQueue, NULL, ( portTickType ) 0U, queueSEND_TO_BACK );
 		}
 		else
 		{
