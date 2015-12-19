@@ -14,9 +14,37 @@ void telnet_init_callback(){
     netconn_listen(conn);
 }
 
-int process_conn(struct netconn *conn){
+int process_buffer(struct netbuf *buf){
     int i = 0;
     return i;
+}
+
+void manage_conn(void *conn_ptr){
+    struct netconn *conn = (struct netconn*)(conn_ptr);
+    struct netbuf *buf = netbuf_new();
+    printf("starting connection\n");
+    uint8_t err;
+    err_t write_err;
+    u16_t data_len = 0;
+    char prefix = '$';
+    while((err = netconn_recv(conn, &buf)) == ERR_OK) {
+        data_len = netbuf_len(buf);
+        char data[data_len];
+        netbuf_copy(buf, data, data_len);
+        printf("data: %s", data);
+        char resp[2];
+        if(data_len > 2)
+            prefix = data[0];
+        sprintf(resp, "%c>", prefix);
+        netbuf_delete(buf);
+        write_err = netconn_write(conn, resp, strlen(resp), 1);
+        if(write_err < 0)
+            printf("write ERRNO: %d\n", write_err);
+    }
+    printf("ERRNO: %d\n", err);
+    printf("deleting connection\n");
+    netconn_close(conn);
+    vTaskDelete(NULL);
 }
 
 void run_server(){
@@ -24,7 +52,7 @@ void run_server(){
     struct ip_info pTempIp;
     sdk_wifi_get_ip_info(0x00, &pTempIp);
     printf("--IP:\"%d.%d.%d.%d\"\r\n", IP2STR(&pTempIp.ip));
-    static struct netconn *conn; \
+    struct netconn *conn; 
     conn = netconn_new(NETCONN_TCP);
     struct netconn *new_conn;
 
@@ -36,12 +64,14 @@ void run_server(){
        uint8_t err = netconn_accept(conn, &new_conn);
        if ( err != ERR_OK )
           continue;
-       char *resp;
-       resp = "hollaback";
-       err = netconn_write(new_conn, resp, sizeof(*resp), 0);
+       char *resp = ">";
+       err = netconn_write(new_conn, resp, strlen(resp), 1);
        printf("message recvd \n");
-       netconn_delete(new_conn);
+       xTaskCreate(&manage_conn, (signed char *)"connection_task", 2048, new_conn, 2, NULL);
     }
+    printf("deleting server\n");
+    netconn_close(conn);
+    vTaskDelete(NULL);
 }
 
 void print_ip(uint32_t ip)
