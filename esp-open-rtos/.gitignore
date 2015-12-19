@@ -12,3 +12,4 @@ local.h
 screenlog.*
 .idea
 CMake*
+firmware
