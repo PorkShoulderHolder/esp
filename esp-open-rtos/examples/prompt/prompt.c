@@ -119,7 +119,7 @@ static void repl(void *pvParameters)
 
 void user_init(void)
 {
-    uart_set_baud(0, 9600);
+    uart_set_baud(0, 115200);
     register_cmd(&powers_of_two, (const char*)"two");
     register_cmd(&hello_world, (const char*)"hello");
     register_cmd(&powers_of_two, (const char*)"two");
