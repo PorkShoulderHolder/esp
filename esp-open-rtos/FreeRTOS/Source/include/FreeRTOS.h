@@ -174,7 +174,7 @@ typedef portBASE_TYPE (*pdTASK_HOOK_CODE)( void * );
 #endif
 
 #ifndef INCLUDE_eTaskGetState
-	#define INCLUDE_eTaskGetState 0
+	#define INCLUDE_eTaskGetState 1
 #endif
 
 #ifndef configUSE_RECURSIVE_MUTEXES
