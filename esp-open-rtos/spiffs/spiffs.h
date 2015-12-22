@@ -54,7 +54,7 @@ extern "C" {
 #define SPIFFS_ERR_TEST                 -10100
 
 
-
+void fs_mount(void);
 
 // spiffs file descriptor index type. must be signed
 typedef s16_t spiffs_file;
@@ -67,6 +67,7 @@ typedef u8_t spiffs_obj_type;
 
 #if SPIFFS_HAL_CALLBACK_EXTRA
 struct spiffs_t;
+
 
 /* spi read call function type */
 typedef s32_t (*spiffs_read)(struct spiffs_t *fs, u32_t addr, u32_t size, u8_t *dst);
