@@ -14,13 +14,13 @@ void telnet_init_callback(){
     netconn_listen(conn);
 }
 
-void process_buffer(struct netbuf *buf, struct Env *env){
+char* process_buffer(struct netbuf *buf, struct Env *env){
     
     u16_t data_len = 0;
     data_len = netbuf_len(buf);
     char data[data_len];
     netbuf_copy(buf, data, data_len);
-    run_command(data, env);
+    return run_command(data, env);
 }
 
 void manage_conn(void *conn_ptr){
@@ -38,22 +38,25 @@ void manage_conn(void *conn_ptr){
     while((err = netconn_recv(conn, &buf)) == ERR_OK) {
         char* out;
         char* resp = "";
-        process_buffer(buf, &env);
+        out = process_buffer(buf, &env);
         ts = eTaskGetState(env.task_handle);
-        unsigned int q_buffer;
-        if(xQueueReceive(env.queue_handle, &q_buffer, 0)){
-            out = (char *) q_buffer;
-        }
-        else{
-            continue;
-        }
-        if(ts == eDeleted || ts == eSuspended || (*q_buffer) == TASKDONE){
-            printf("finished\n");
-            sprintf(resp, "%s>", out);
-        }
-        else{
-            sprintf(resp, "%s", out);
-        } 
+        // unsigned int q_buffer;
+        // if(xQueueReceive(env.queue_handle, &q_buffer, 0)){
+        //     printf("got msg\n");
+        //     out = (char *) q_buffer;
+        // }
+        // else{
+        //     printf("rollin\n");
+        //     continue;
+        // }
+        // if(ts == eDeleted || ts == eSuspended || q_buffer == 12){
+        //     printf("finished\n");
+        //     sprintf(resp, "%s>", out);
+        // }
+        // else{
+        //     printf("out\n");
+        //     sprintf(resp, "%s", out);
+        // } 
         netbuf_delete(buf);
         write_err = netconn_write(conn, resp, strlen(resp), 1);
         if(write_err < 0)

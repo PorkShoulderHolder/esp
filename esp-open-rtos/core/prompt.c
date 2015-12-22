@@ -8,22 +8,26 @@ static unsigned int TASKDONE;
 
 struct Cmd{
     char name[81];
-    void (*cmdfn)(void* args);
+    char * (*cmdfn)(void* args);
 };
 
 
 struct Cmd cmds[20];
 int cmdIndex = 0;
 
-void hello_world(void* args){
-    printf("\nhello world!");
+char* hello_world(void* args){
+    char *out = "";
+    sprintf(out,"\nhello world!");
+    return out;
 }
 
-void powers_of_two(void* args){
+char* powers_of_two(void* args){
     int power = 2;
     while(true){
         power*=2;
-        printf("power: %d\n", power);
+        char * out = "";
+        sprintf(out,"power: %d\n", power);
+        return out;
     }
 }
 
@@ -33,7 +37,7 @@ void register_cmd(void (*cmdfn)(void*), const char* name){
     cmdIndex++;
 }
 
-static void create_process(void *pvParameters){
+char * create_process(void *pvParameters){
     struct Env* env = (struct Env*)pvParameters;
     printf("received command %s\n", env->cmdName);
     printf("supposed tobe %s\n", cmds[1].name);
@@ -45,20 +49,18 @@ static void create_process(void *pvParameters){
         size_t size = strlen(env->cmdName) > strlen(cmds[i].name) ? strlen(cmds[i].name) : strlen(env->cmdName); 
         printf("%d\n", size);
         if(strncmp(cmds[i].name, env->cmdName, size) == 0){
-            printf("VALID COMMAND!!\n");
-            cmds[i].cmdfn(NULL);
-            printf("VALID COMMAND!!%08x\n", (unsigned int)env->queue_handle);
-            
+            return cmds[i].cmdfn(NULL);
             xQueueSend((xQueueHandle)env->queue_handle, &TASKDONE, 0);
-            printf("VALID COMMAND!!\n");
             vTaskDelete(NULL);
        }
     }
-    printf("Error: %s is not a valid command\n", env->cmdName);
+    char *out = "";
+    sprintf(out, "Error: %s is not a valid command\n", env->cmdName);
+    return out;
     vTaskDelete(NULL);
 }
 
-void run_command(char *cmd, struct Env *env){
+char * run_command(char *cmd, struct Env *env){
     /* 
         run as 
             run_command(cmd, NULL); 
@@ -99,8 +101,8 @@ void run_command(char *cmd, struct Env *env){
     strcpy(env->cmdName, argv[0]);
     printf("received command %s\n", cmd);
     printf("received command %s\n", env->cmdName);
-
-    xTaskCreate(create_process, (signed char *)"create_process", 1024, env, 0, env->task_handle);
+    return create_process((void *)env);
+    //xTaskCreate(create_process, (signed char *)"create_process", 1024, env, 0, env->task_handle);
 }
 
 
