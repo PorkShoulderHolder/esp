@@ -28,6 +28,8 @@
 #include "kern/telnet/telnet.c"
 
 
+#include <spiffs.h>
+void fs_mount(void);
 /* This is not declared in any header file (but arguably should be) */
 
 void user_init(void);
@@ -245,9 +247,11 @@ void IRAM sdk_user_start(void) {
         dump_flash_config_sectors(flash_sectors - 4);
         //FIXME: should we halt here? (original SDK code doesn't)
     }
+    fs_mount();
     memcpy(&sdk_g_ic.s, buf32, sizeof(struct sdk_g_ic_saved_st));
-
     user_start_phase2();
+
+
 }
 
 // .text+0x3a8
@@ -294,6 +298,7 @@ static void init_networking(uint8_t *phy_info, uint8_t *mac_addr) {
     sdk_phy_enable_agc();
     sdk_cnx_attach(&sdk_g_ic);
     sdk_wDevEnableRx();
+
 }
 
 // .Lfunc007 -- .irom0.text+0x148
