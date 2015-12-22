@@ -39,7 +39,7 @@ void manage_conn(void *conn_ptr){
     //eTaskState ts; 
     while((err = netconn_recv(conn, &buf)) == ERR_OK) {
         char* resp = "\n>";
-        
+        env.out = "";
 
         process_buffer(buf, &env);
         //printf("received output %s\n", env.out);
@@ -102,9 +102,8 @@ void run_server(){
        char *resp = ">";
        err = netconn_write(new_conn, resp, strlen(resp), 1);
        printf("message recvd \n");
-       netconn_set_recvtimeout(conn, 1000);
-       netconn_set_sendtimeout(conn, 1000);
-       xTaskCreate(&manage_conn, (signed char *)"connection_task", 8192, new_conn, 2, NULL);
+
+       xTaskCreate(&manage_conn, (signed char *)"connection_task", 2048, new_conn, 0, NULL);
     }
     printf("deleting server\n");
     netconn_close(conn);
@@ -156,7 +155,7 @@ void telnet_init(void){
         printf("has valid addr...\n");
         print_ip(info.ip.addr);
 
-        xTaskCreate(&run_server, (signed char *)"runserver_task", 256, NULL, 2, NULL);
+        xTaskCreate(&run_server, (signed char *)"runserver_task", 256, NULL, 0, NULL);
     }
     else{
         printf("not so sure...\n");

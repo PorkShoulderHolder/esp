@@ -32,7 +32,7 @@ void ps(struct Env *env){
     vTaskList((signed char*)(env->out));
 }
 
-void kill(struct Env *env){
+void kill(struct Env *env, struct Env *killenv){
     //char *target = (char *)((env->args) + 1);
     return;
 }
