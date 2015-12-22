@@ -14,13 +14,15 @@ void telnet_init_callback(){
     netconn_listen(conn);
 }
 
-char* process_buffer(struct netbuf *buf, struct Env *env){
+void process_buffer(struct netbuf *buf, struct Env *env){
     
     u16_t data_len = 0;
     data_len = netbuf_len(buf);
     char data[data_len];
     netbuf_copy(buf, data, data_len);
-    return run_command(data, env);
+    run_command(data, env);
+    printf("received output %s\n", env->out);
+
 }
 
 void manage_conn(void *conn_ptr){
@@ -30,16 +32,19 @@ void manage_conn(void *conn_ptr){
     uint8_t err;
     err_t write_err;
     
-    struct Env env;
-    env.queue_handle = xQueueCreate(10, sizeof(unsigned int));
-    xTaskHandle task_handle;
-    env.task_handle = &task_handle;
-    eTaskState ts; 
+     struct Env env;
+     env.queue_handle = xQueueCreate(10, sizeof(unsigned int));
+     xTaskHandle task_handle;
+     env.task_handle = &task_handle;
+    //eTaskState ts; 
     while((err = netconn_recv(conn, &buf)) == ERR_OK) {
-        char* out;
-        char* resp = "";
-        out = process_buffer(buf, &env);
-        ts = eTaskGetState(env.task_handle);
+        //char* resp = "\nbb";
+        
+
+        process_buffer(buf, &env);
+        printf("received output %s\n", env.out);
+
+        //ts = eTaskGetState(env.task_handle);
         // unsigned int q_buffer;
         // if(xQueueReceive(env.queue_handle, &q_buffer, 0)){
         //     printf("got msg\n");
@@ -55,12 +60,21 @@ void manage_conn(void *conn_ptr){
         // }
         // else{
         //     printf("out\n");
-        //     sprintf(resp, "%s", out);
+        
+       // sprintf(resp, "%s>", env.out);
+       // printf("SWISS CHARD: %s\n", resp);
         // } 
+       // printf(":::%d\n", netconn_get_recvtimeout(conn));
+       // printf(":::%d\n", netconn_get_sendtimeout(conn));
+
+        
+        write_err = netconn_write(conn, env.out, strlen(env.out), 1);
         netbuf_delete(buf);
-        write_err = netconn_write(conn, resp, strlen(resp), 1);
-        if(write_err < 0)
-            printf("write ERRNO: %d\n", write_err);
+
+        //if(write_err < 0)
+        
+        printf("write ERRNO: %d\n", write_err);
+
     }
     printf("ERRNO: %d\n", err);
     printf("deleting connection\n");
@@ -88,7 +102,9 @@ void run_server(){
        char *resp = ">";
        err = netconn_write(new_conn, resp, strlen(resp), 1);
        printf("message recvd \n");
-       xTaskCreate(&manage_conn, (signed char *)"connection_task", 2048, new_conn, 2, NULL);
+       netconn_set_recvtimeout(conn, 1000);
+       netconn_set_sendtimeout(conn, 1000);
+       xTaskCreate(&manage_conn, (signed char *)"connection_task", 4096, new_conn, 2, NULL);
     }
     printf("deleting server\n");
     netconn_close(conn);
