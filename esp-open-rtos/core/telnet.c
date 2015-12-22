@@ -38,11 +38,11 @@ void manage_conn(void *conn_ptr){
      env.task_handle = &task_handle;
     //eTaskState ts; 
     while((err = netconn_recv(conn, &buf)) == ERR_OK) {
-        //char* resp = "\nbb";
+        char* resp = "\n>";
         
 
         process_buffer(buf, &env);
-        printf("received output %s\n", env.out);
+        //printf("received output %s\n", env.out);
 
         //ts = eTaskGetState(env.task_handle);
         // unsigned int q_buffer;
@@ -67,8 +67,8 @@ void manage_conn(void *conn_ptr){
        // printf(":::%d\n", netconn_get_recvtimeout(conn));
        // printf(":::%d\n", netconn_get_sendtimeout(conn));
 
-        
         write_err = netconn_write(conn, env.out, strlen(env.out), 1);
+        netconn_write(conn, resp, strlen(resp), 1);
         netbuf_delete(buf);
 
         //if(write_err < 0)
@@ -104,7 +104,7 @@ void run_server(){
        printf("message recvd \n");
        netconn_set_recvtimeout(conn, 1000);
        netconn_set_sendtimeout(conn, 1000);
-       xTaskCreate(&manage_conn, (signed char *)"connection_task", 4096, new_conn, 2, NULL);
+       xTaskCreate(&manage_conn, (signed char *)"connection_task", 8192, new_conn, 2, NULL);
     }
     printf("deleting server\n");
     netconn_close(conn);

@@ -28,6 +28,15 @@ void powers_of_two(struct Env *env){
     }
 }
 
+void ps(struct Env *env){
+    vTaskList((signed char*)(env->out));
+}
+
+void kill(struct Env *env){
+    //char *target = (char *)((env->args) + 1);
+    return;
+}
+
 void register_cmd(void (*cmdfn)(struct Env *), const char* name){
     strcpy(cmds[cmdIndex].name, name);
     cmds[cmdIndex].cmdfn = cmdfn;
@@ -86,6 +95,7 @@ void run_command(char *cmd, struct Env *env){
         //then we'll continue
     }
 
+    env->args = argv;
     strcpy(env->cmdName, argv[0]);
     printf("received command %s\n", cmd);
     printf("received command %s\n", env->cmdName);
@@ -124,6 +134,7 @@ void prompt_init(void){
     TASKDONE = 12;
     register_cmd(&powers_of_two, (const char*)"two");
     register_cmd(&hello_world, (const char*)"hello");
+    register_cmd(&ps, (const char*)"ps");
 }
 
 

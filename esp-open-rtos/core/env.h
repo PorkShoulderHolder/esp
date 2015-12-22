@@ -7,7 +7,7 @@
 
 struct Env{
     char cmdName[81];
-    char* args;
+    char** args;
     char* out;
     struct t_entry *var_table;
     xQueueHandle queue_handle;
